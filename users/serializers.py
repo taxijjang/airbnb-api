@@ -16,31 +16,32 @@ class RelatedUserSerializer(serializers.ModelSerializer):
         )
 
 
-class ReadUserSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        exclude = (
-            'groups',
-            'user_permissions',
-            'password',
-            'last_login',
-            'is_superuser',
-            'is_staff',
-            'is_active',
-            'favs',
-            'date_joined',
-        )
+class UserSerializer(serializers.ModelSerializer):
 
-class WriteUserSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(write_only=True)
+
     class Meta:
         model = User
         fields = (
+            "id",
             "username",
             "first_name",
             "last_name",
             "email",
+            "avatar",
+            "superhost",
+            "password",
         )
+
+        read_only_fields = ("id","superhost","avatoar")
 
     def validated_first_name(self, value):
         print(value)
         return value.upper()
+
+    def create(self, validated_data):
+        password = validated_data.get('password')
+        user = super().create(validated_data)
+        user.set_password(password)
+        user.save()
+        return user
