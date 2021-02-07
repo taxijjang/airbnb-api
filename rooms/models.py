@@ -19,6 +19,8 @@ class Room(CoreModel):
         "users.User", on_delete=models.CASCADE, related_name="rooms"
     )
 
+    class Meta:
+        ordering = ['-id']
     def __str__(self):
         return self.name
 
