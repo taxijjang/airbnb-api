@@ -7,6 +7,7 @@ from rest_framework import status
 from rest_framework import permissions
 from .models import Room
 from .serializers import RoomSerializer
+from .permissions import IsOwner
 
 
 class RoomViewSet(ModelViewSet):
@@ -20,6 +21,11 @@ class RoomViewSet(ModelViewSet):
             permission_classes = [permissions.IsAuthenticated]
         else:
             permission_classes = [IsOwner]
+
+        # called_perm = []
+        # for p in permission_classes:
+        #     called_perm.append(p())
+        return [permission() for permission in permission_classes]
 # class OwnPagination(PageNumberPagination):
 #     page_size = 20
 
