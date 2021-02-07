@@ -8,7 +8,6 @@ from rest_framework.response import Response
 from rest_framework import status
 from .serializers import UserSerializer
 from .models import User
-from rooms.serializers import RoomSerializer
 from rooms.models import Room
 
 

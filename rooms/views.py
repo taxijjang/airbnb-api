@@ -1,5 +1,3 @@
-from rest_framework.generics import RetrieveAPIView
-from rest_framework.decorators import api_view
 from rest_framework.views import APIView
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -12,14 +10,14 @@ from .serializers import RoomSerializer
 class OwnPagination(PageNumberPagination):
     page_size = 20
 
+
 class RoomsView(APIView):
     def get(self, request):
         paginator = OwnPagination()
         rooms = Room.objects.all()
-        results = paginator.paginate_queryset(rooms,request)
-        serializer = RoomSerializer(results, many=True)
+        results = paginator.paginate_queryset(rooms, request)
+        serializer = RoomSerializer(results, many=True, context={'request': request})
         return paginator.get_paginated_response(serializer.data)
-        #return Response(data=serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request):
         if not request.user.is_authenticated:
@@ -43,10 +41,13 @@ class RoomView(APIView):
             return None
 
     def get(self, request, pk):
+        print(pk)
         room = self.get_room(pk)
         if room is not None:
             serializer = RoomSerializer(room)
             return Response(data=serializer.data)
+        else:
+            return Response(status=status.HTTP_404_NOT_FOUND)
 
     def put(self, request, pk):
         room = self.get_room(pk)
@@ -73,15 +74,16 @@ class RoomView(APIView):
         else:
             return Response(status=status.HTTP_404_NOT_FOUND)
 
+
 @api_view(["GET"])
 def room_search(request):
-    max_price = request.GET.get('max_price',None)
-    min_price = request.GET.get('min_price',None)
+    max_price = request.GET.get('max_price', None)
+    min_price = request.GET.get('min_price', None)
     beds = request.GET.get('beds', None)
     bedrooms = request.GET.get('bedrooms', None)
     bathrooms = request.GET.get('bathrooms', None)
-    lat = request.GET.get("lat",None)
-    lng = request.GET.get("lng",None)
+    lat = request.GET.get("lat", None)
+    lng = request.GET.get("lng", None)
 
     filter_kwargs = {}
 
@@ -110,7 +112,6 @@ def room_search(request):
     except ValueError:
         rooms = Room.objects.all()
     paginator = OwnPagination()
-    results = paginator.paginate_queryset(rooms,request)
-    serializer = RoomSerializer(results,many=True)
+    results = paginator.paginate_queryset(rooms, request)
+    serializer = RoomSerializer(results, many=True)
     return paginator.get_paginated_response(serializer.data)
-
