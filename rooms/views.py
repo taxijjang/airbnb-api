@@ -80,6 +80,8 @@ def room_search(request):
     beds = request.GET.get('beds', None)
     bedrooms = request.GET.get('bedrooms', None)
     bathrooms = request.GET.get('bathrooms', None)
+    lat = request.GET.get("lat",None)
+    lng = request.GET.get("lng",None)
 
     filter_kwargs = {}
 
@@ -93,6 +95,11 @@ def room_search(request):
         filter_kwargs['bedrooms__gte'] = bedrooms
     if bathrooms is not None:
         filter_kwargs['bathrooms__gte'] = bathrooms
+    if lat is not None and lng is not None:
+        filter_kwargs["lat__gte"] = float(lat) - 0.005
+        filter_kwargs["lat__lte"] = float(lat) + 0.005
+        filter_kwargs["lng_gte"] = float(lng) - 0.005
+        filter_kwargs["lng_lte"] = float(lng) + 0.005
 
     # **filter_kwargs는 unpacking
     # price_lte='30', beds_gte='2', bathrooms_gte='2' 로 만들어준다.
