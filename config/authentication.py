@@ -4,7 +4,6 @@ from users.models import User
 from rest_framework import authentication
 
 
-
 class JWTAuthentication(authentication.BaseAuthentication):
     def authenticate(self, request):
         try:
@@ -16,5 +15,5 @@ class JWTAuthentication(authentication.BaseAuthentication):
             pk = decode.get("id")
             user = User.objects.get(pk=pk)
             return (user, None)
-        except (ValueError,jwt.exceptions.DecodeError,User.DoesNotExist) :
+        except (ValueError, jwt.exceptions.DecodeError, User.DoesNotExist):
             return None
