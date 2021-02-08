@@ -12,7 +12,7 @@ from .permissions import IsSelf
 from .serializers import UserSerializer
 from .models import User
 from rooms.models import Room
-
+from rooms.serializers import RoomSerializer
 
 class UserViewSet(ModelViewSet):
     queryset = User.objects.all()
@@ -21,7 +21,7 @@ class UserViewSet(ModelViewSet):
     def get_permissions(self):
         if self.action == "list":
             permission_classes = [IsAdminUser]
-        elif self.action == "create" or self.action == "retrieve":
+        elif self.action == "create" or self.action == "retrieve" or self.action == "favs":
             permission_classes = [AllowAny]
         else:
             permission_classes = [IsSelf]
@@ -37,21 +37,20 @@ class UserViewSet(ModelViewSet):
         if user is not None:
             encode_jwt = jwt.encode(
                 {'id': user.pk}, settings.SECRET_KEY, algorithm='HS256')
-            return Response(data={'token': encode_jwt, "id":user.pk})
+            return Response(data={'token': encode_jwt, "id": user.pk})
         else:
             return Response(status=status.HTTP_401_UNAUTHORIZED)
 
-class FavsView(APIView):
-    permission_classes = [IsAuthenticated]
-
-    def get(self, request):
-        user = request.user
-        serializer = UserSerializer(user.favs.all(), many=True)
+    @action(detail=True)
+    def favs(self, request, pk):
+        user = self.get_object()
+        serializer = RoomSerializer(user.favs.all(), many=True)
         return Response(data=serializer.data)
 
-    def put(self, request):
+    @favs.mapping.put
+    def toggle_favs(self, request, pk):
         pk = request.data.get("pk", None)
-        user = request.user
+        user = self.get_object()
         if pk is not None:
             try:
                 room = Room.objects.get(pk=pk)
@@ -63,4 +62,3 @@ class FavsView(APIView):
             except Room.DoesNotExist:
                 pass
         return Response(status=status.HTTP_400_BAD_REQUEST)
-
