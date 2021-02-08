@@ -36,7 +36,6 @@ class UserSerializer(serializers.ModelSerializer):
         read_only_fields = ("id","superhost","avatoar")
 
     def validated_first_name(self, value):
-        print(value)
         return value.upper()
 
     def create(self, validated_data):
